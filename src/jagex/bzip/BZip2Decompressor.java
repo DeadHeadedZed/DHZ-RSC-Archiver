@@ -1,7 +1,5 @@
 package jagex.bzip;
 
-import java.io.PrintStream;
-
 public class BZip2Decompressor
 {
 
@@ -15,38 +13,38 @@ public class BZip2Decompressor
     public static int decompressBuffer(byte outputBuffer[], int decompressedSize, byte inputBuffer[], int compressedSize, int offset)
     {
         BZip2BlockEntry bzip2blockentry = currentBlock;
-        currentBlock.inputBuffer = inputBuffer;
-        currentBlock.offset = offset;
-        currentBlock.outputBuffer = outputBuffer;
-        currentBlock.anInt569 = 0;
-        currentBlock.compressedSize = compressedSize;
-        currentBlock.decompressedSize = decompressedSize;
-        currentBlock.anInt577 = 0;
-        currentBlock.anInt576 = 0;
-        currentBlock.anInt566 = 0;
-        currentBlock.anInt567 = 0;
-        currentBlock.anInt571 = 0;
-        currentBlock.anInt572 = 0;
-        currentBlock.anInt579 = 0;
+        currentBlock.streamIn = inputBuffer;
+        currentBlock.streamNextIn = offset;
+        currentBlock.streamOut = outputBuffer;
+        currentBlock.streamNextOut = 0;
+        currentBlock.streamAvailableIn = compressedSize;
+        currentBlock.streamAvailableOut = decompressedSize;
+        currentBlock.bsLive = 0;
+        currentBlock.bsBuff = 0;
+        currentBlock.streamTotalInLo32 = 0;
+        currentBlock.streamTotalInHi32 = 0;
+        currentBlock.streamTotalOutLo32 = 0;
+        currentBlock.streamTotalOutHi32 = 0;
+        currentBlock.currentBlockNumber = 0;
         readBlock(currentBlock);
-        decompressedSize -= currentBlock.decompressedSize;
+        decompressedSize -= currentBlock.streamAvailableOut;
         return decompressedSize;
     }
 
     private static void method226(BZip2BlockEntry blockEntry)
     {
-        byte byte4 = blockEntry.aByte573;
-        int i = blockEntry.anInt574;
-        int j = blockEntry.anInt584;
-        int k = blockEntry.anInt582;
+        byte byte4 = blockEntry.streamOutCh;
+        int i = blockEntry.stateOutCh;
+        int j = blockEntry.nblockUsed;
+        int k = blockEntry.k0;
         BZip2BlockEntry _tmp = blockEntry;
-        int ai[] = BZip2BlockEntry.ll8;
-        int l = blockEntry.anInt581;
-        byte abyte0[] = blockEntry.outputBuffer;
-        int i1 = blockEntry.anInt569;
-        int j1 = blockEntry.decompressedSize;
+        int ai[] = BZip2BlockEntry.tt;
+        int l = blockEntry.tPos;
+        byte abyte0[] = blockEntry.streamOut;
+        int i1 = blockEntry.streamNextOut;
+        int j1 = blockEntry.streamAvailableOut;
         int k1 = j1;
-        int l1 = blockEntry.anInt601 + 1;
+        int l1 = blockEntry.saveNblock + 1;
 label0:
         do
         {
@@ -160,22 +158,22 @@ label0:
                 }
             }
         } while(true);
-        int i2 = blockEntry.anInt571;
-        blockEntry.anInt571 += k1 - j1;
-        if(blockEntry.anInt571 < i2)
+        int i2 = blockEntry.streamTotalOutLo32;
+        blockEntry.streamTotalOutLo32 += k1 - j1;
+        if(blockEntry.streamTotalOutLo32 < i2)
         {
-            blockEntry.anInt572++;
+            blockEntry.streamTotalOutHi32++;
         }
-        blockEntry.aByte573 = byte4;
-        blockEntry.anInt574 = i;
-        blockEntry.anInt584 = j;
-        blockEntry.anInt582 = k;
+        blockEntry.streamOutCh = byte4;
+        blockEntry.stateOutCh = i;
+        blockEntry.nblockUsed = j;
+        blockEntry.k0 = k;
         BZip2BlockEntry _tmp1 = blockEntry;
-        BZip2BlockEntry.ll8 = ai;
-        blockEntry.anInt581 = l;
-        blockEntry.outputBuffer = abyte0;
-        blockEntry.anInt569 = i1;
-        blockEntry.decompressedSize = j1;
+        BZip2BlockEntry.tt = ai;
+        blockEntry.tPos = l;
+        blockEntry.streamOut = abyte0;
+        blockEntry.streamNextOut = i1;
+        blockEntry.streamAvailableOut = j1;
     }
 
     private static void readBlock(BZip2BlockEntry blockEntry)
@@ -186,12 +184,12 @@ label0:
         int perm_zt[] = null;
         blockEntry.blockSize100k = 1;
         BZip2BlockEntry _tmp = blockEntry;
-        if(BZip2BlockEntry.ll8 == null)
+        if(BZip2BlockEntry.tt == null)
         {
             BZip2BlockEntry _tmp1 = blockEntry;
-            BZip2BlockEntry.ll8 = new int[blockEntry.blockSize100k * 0x186a0];
+            BZip2BlockEntry.tt = new int[blockEntry.blockSize100k * 0x186a0];
         }
-        for(boolean flag19 = true; flag19; flag19 = blockEntry.anInt584 == blockEntry.anInt601 + 1 && blockEntry.anInt574 == 0)
+        for(boolean flag19 = true; flag19; flag19 = blockEntry.nblockUsed == blockEntry.saveNblock + 1 && blockEntry.stateOutCh == 0)
         {
             byte tmpRegister = getUByte(blockEntry);
             if(tmpRegister == 23)
@@ -203,14 +201,14 @@ label0:
             getUByte(blockEntry);
             getUByte(blockEntry);
             getUByte(blockEntry);
-            blockEntry.anInt579++;
+            blockEntry.currentBlockNumber++;
             getUByte(blockEntry);
             getUByte(blockEntry);
             getUByte(blockEntry);
             getUByte(blockEntry);
             tmpRegister = getBit(blockEntry);
-            blockEntry.wasRandomised = tmpRegister != 0;
-            if(blockEntry.wasRandomised)
+            blockEntry.blockRandomised = tmpRegister != 0;
+            if(blockEntry.blockRandomised)
             {
                 System.out.println("PANIC! RANDOMISED BLOCK!");
             }
@@ -347,11 +345,11 @@ label0:
             {
                 for(int i9 = 15; i9 >= 0; i9--)
                 {
-                    blockEntry.yy[j9] = (byte)(l8 * 16 + i9);
+                    blockEntry.mtfa[j9] = (byte)(l8 * 16 + i9);
                     j9--;
                 }
 
-                blockEntry.anIntArray593[l8] = j9 + 1;
+                blockEntry.mtfBase[l8] = j9 + 1;
             }
 
             int i6 = 0;
@@ -415,12 +413,12 @@ label0:
                         nextSym = perm_zt[zvec2 - base_zt[zn2]];
                     } while(nextSym == 0 || nextSym == 1);
                     j6++;
-                    byte ch = blockEntry.seqToUnseq[blockEntry.yy[blockEntry.anIntArray593[0]] & 0xff];
+                    byte ch = blockEntry.seqToUnseq[blockEntry.mtfa[blockEntry.mtfBase[0]] & 0xff];
                     blockEntry.unzftab[ch & 0xff] += j6;
                     while(j6 > 0) 
                     {
                         BZip2BlockEntry _tmp2 = blockEntry;
-                        BZip2BlockEntry.ll8[i6] = ch & 0xff;
+                        BZip2BlockEntry.tt[i6] = ch & 0xff;
                         i6++;
                         j6--;
                     }
@@ -430,62 +428,62 @@ label0:
                     byte tmp;
                     if(j11 < 16)
                     {
-                        int j10 = blockEntry.anIntArray593[0];
-                        tmp = blockEntry.yy[j10 + j11];
+                        int j10 = blockEntry.mtfBase[0];
+                        tmp = blockEntry.mtfa[j10 + j11];
                         for(; j11 > 3; j11 -= 4)
                         {
                             int k11 = j10 + j11;
-                            blockEntry.yy[k11] = blockEntry.yy[k11 - 1];
-                            blockEntry.yy[k11 - 1] = blockEntry.yy[k11 - 2];
-                            blockEntry.yy[k11 - 2] = blockEntry.yy[k11 - 3];
-                            blockEntry.yy[k11 - 3] = blockEntry.yy[k11 - 4];
+                            blockEntry.mtfa[k11] = blockEntry.mtfa[k11 - 1];
+                            blockEntry.mtfa[k11 - 1] = blockEntry.mtfa[k11 - 2];
+                            blockEntry.mtfa[k11 - 2] = blockEntry.mtfa[k11 - 3];
+                            blockEntry.mtfa[k11 - 3] = blockEntry.mtfa[k11 - 4];
                         }
 
                         for(; j11 > 0; j11--)
                         {
-                            blockEntry.yy[j10 + j11] = blockEntry.yy[(j10 + j11) - 1];
+                            blockEntry.mtfa[j10 + j11] = blockEntry.mtfa[(j10 + j11) - 1];
                         }
 
-                        blockEntry.yy[j10] = tmp;
+                        blockEntry.mtfa[j10] = tmp;
                     } else
                     {
                         int l10 = j11 / 16;
                         int i11 = j11 % 16;
-                        int k10 = blockEntry.anIntArray593[l10] + i11;
-                        tmp = blockEntry.yy[k10];
-                        for(; k10 > blockEntry.anIntArray593[l10]; k10--)
+                        int k10 = blockEntry.mtfBase[l10] + i11;
+                        tmp = blockEntry.mtfa[k10];
+                        for(; k10 > blockEntry.mtfBase[l10]; k10--)
                         {
-                            blockEntry.yy[k10] = blockEntry.yy[k10 - 1];
+                            blockEntry.mtfa[k10] = blockEntry.mtfa[k10 - 1];
                         }
 
-                        blockEntry.anIntArray593[l10]++;
+                        blockEntry.mtfBase[l10]++;
                         for(; l10 > 0; l10--)
                         {
-                            blockEntry.anIntArray593[l10]--;
-                            blockEntry.yy[blockEntry.anIntArray593[l10]] = blockEntry.yy[(blockEntry.anIntArray593[l10 - 1] + 16) - 1];
+                            blockEntry.mtfBase[l10]--;
+                            blockEntry.mtfa[blockEntry.mtfBase[l10]] = blockEntry.mtfa[(blockEntry.mtfBase[l10 - 1] + 16) - 1];
                         }
 
-                        blockEntry.anIntArray593[0]--;
-                        blockEntry.yy[blockEntry.anIntArray593[0]] = tmp;
-                        if(blockEntry.anIntArray593[0] == 0)
+                        blockEntry.mtfBase[0]--;
+                        blockEntry.mtfa[blockEntry.mtfBase[0]] = tmp;
+                        if(blockEntry.mtfBase[0] == 0)
                         {
                             int i10 = 4095;
                             for(int k9 = 15; k9 >= 0; k9--)
                             {
                                 for(int l9 = 15; l9 >= 0; l9--)
                                 {
-                                    blockEntry.yy[i10] = blockEntry.yy[blockEntry.anIntArray593[k9] + l9];
+                                    blockEntry.mtfa[i10] = blockEntry.mtfa[blockEntry.mtfBase[k9] + l9];
                                     i10--;
                                 }
 
-                                blockEntry.anIntArray593[k9] = i10 + 1;
+                                blockEntry.mtfBase[k9] = i10 + 1;
                             }
 
                         }
                     }
                     blockEntry.unzftab[blockEntry.seqToUnseq[tmp & 0xff] & 0xff]++;
                     BZip2BlockEntry _tmp3 = blockEntry;
-                    BZip2BlockEntry.ll8[i6] = blockEntry.seqToUnseq[tmp & 0xff] & 0xff;
+                    BZip2BlockEntry.tt[i6] = blockEntry.seqToUnseq[tmp & 0xff] & 0xff;
                     i6++;
                     if(groupPos == 0)
                     {
@@ -511,37 +509,37 @@ label0:
                 }
             }
 
-            blockEntry.anInt574 = 0;
-            blockEntry.aByte573 = 0;
-            blockEntry.anIntArray585[0] = 0;
+            blockEntry.stateOutCh = 0;
+            blockEntry.streamOutCh = 0;
+            blockEntry.cftab[0] = 0;
             for(int j2 = 1; j2 <= 256; j2++)
             {
-                blockEntry.anIntArray585[j2] = blockEntry.unzftab[j2 - 1];
+                blockEntry.cftab[j2] = blockEntry.unzftab[j2 - 1];
             }
 
             for(int k2 = 1; k2 <= 256; k2++)
             {
-                blockEntry.anIntArray585[k2] += blockEntry.anIntArray585[k2 - 1];
+                blockEntry.cftab[k2] += blockEntry.cftab[k2 - 1];
             }
 
             for(int l2 = 0; l2 < i6; l2++)
             {
                 BZip2BlockEntry _tmp4 = blockEntry;
-                byte byte7 = (byte)(BZip2BlockEntry.ll8[l2] & 0xff);
+                byte byte7 = (byte)(BZip2BlockEntry.tt[l2] & 0xff);
                 BZip2BlockEntry _tmp5 = blockEntry;
-                BZip2BlockEntry.ll8[blockEntry.anIntArray585[byte7 & 0xff]] |= l2 << 8;
-                blockEntry.anIntArray585[byte7 & 0xff]++;
+                BZip2BlockEntry.tt[blockEntry.cftab[byte7 & 0xff]] |= l2 << 8;
+                blockEntry.cftab[byte7 & 0xff]++;
             }
 
             BZip2BlockEntry _tmp6 = blockEntry;
-            blockEntry.anInt581 = BZip2BlockEntry.ll8[blockEntry.origPtr] >> 8;
-            blockEntry.anInt584 = 0;
+            blockEntry.tPos = BZip2BlockEntry.tt[blockEntry.origPtr] >> 8;
+            blockEntry.nblockUsed = 0;
             BZip2BlockEntry _tmp7 = blockEntry;
-            blockEntry.anInt581 = BZip2BlockEntry.ll8[blockEntry.anInt581];
-            blockEntry.anInt582 = (byte)(blockEntry.anInt581 & 0xff);
-            blockEntry.anInt581 >>= 8;
-            blockEntry.anInt584++;
-            blockEntry.anInt601 = i6;
+            blockEntry.tPos = BZip2BlockEntry.tt[blockEntry.tPos];
+            blockEntry.k0 = (byte)(blockEntry.tPos & 0xff);
+            blockEntry.tPos >>= 8;
+            blockEntry.nblockUsed++;
+            blockEntry.saveNblock = i6;
             method226(blockEntry);
         }
 
@@ -562,21 +560,21 @@ label0:
         int j;
         do
         {
-            if(blockEntry.anInt577 >= i)
+            if(blockEntry.bsLive >= i)
             {
-                int k = blockEntry.anInt576 >> blockEntry.anInt577 - i & (1 << i) - 1;
-                blockEntry.anInt577 -= i;
+                int k = blockEntry.bsBuff >> blockEntry.bsLive - i & (1 << i) - 1;
+                blockEntry.bsLive -= i;
                 j = k;
                 break;
             }
-            blockEntry.anInt576 = blockEntry.anInt576 << 8 | blockEntry.inputBuffer[blockEntry.offset] & 0xff;
-            blockEntry.anInt577 += 8;
-            blockEntry.offset++;
-            blockEntry.compressedSize--;
-            blockEntry.anInt566++;
-            if(blockEntry.anInt566 == 0)
+            blockEntry.bsBuff = blockEntry.bsBuff << 8 | blockEntry.streamIn[blockEntry.streamNextIn] & 0xff;
+            blockEntry.bsLive += 8;
+            blockEntry.streamNextIn++;
+            blockEntry.streamAvailableIn--;
+            blockEntry.streamTotalInLo32++;
+            if(blockEntry.streamTotalInLo32 == 0)
             {
-                blockEntry.anInt567++;
+                blockEntry.streamTotalInHi32++;
             }
         } while(true);
         return j;

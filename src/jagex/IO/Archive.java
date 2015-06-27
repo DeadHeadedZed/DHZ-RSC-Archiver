@@ -1,7 +1,6 @@
 package jagex.IO;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -28,8 +27,8 @@ public class Archive
         startOffsets = new ArrayList<Integer>();
         byte[] seeder = new byte[8];
         Stream stream = new Stream(seeder);
-        stream.write24BitInt(8);
-        stream.write24BitInt(8);
+        stream.write3Bytes(8);
+        stream.write3Bytes(8);
         stream.writeShort(0);
         finalBuffer = seeder;
         totalFiles = 0;
@@ -44,8 +43,8 @@ public class Archive
         compressedSizes = new ArrayList<Integer>();
         startOffsets = new ArrayList<Integer>();
         Stream stream = new Stream(abyte0);
-        int decompressedSize = stream.readU24BitInt();
-        int compressedSize = stream.readU24BitInt();
+        int decompressedSize = stream.readU3Bytes();
+        int compressedSize = stream.readU3Bytes();
         if(compressedSize != decompressedSize)
         {
             byte abyte1[] = new byte[decompressedSize];
@@ -63,8 +62,8 @@ public class Archive
         for(int l = 0; l < totalFiles; l++)
         {
             identifiers.add(Integer.valueOf(stream.readUInt()));
-            decompressedSizes.add(Integer.valueOf(stream.readU24BitInt()));
-            compressedSizes.add(Integer.valueOf(stream.readU24BitInt()));
+            decompressedSizes.add(Integer.valueOf(stream.readU3Bytes()));
+            compressedSizes.add(Integer.valueOf(stream.readU3Bytes()));
             startOffsets.add(Integer.valueOf(offset));
             offset += ((Integer)compressedSizes.get(l)).intValue();
             System.out.println((new StringBuilder()).append("Read ").append(identifiers.get(l)).append(" dc: ").append(decompressedSizes.get(l)).append(" cs: ").append(compressedSizes.get(l)).toString());

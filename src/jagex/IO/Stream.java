@@ -7,12 +7,10 @@ public final class Stream
     private boolean aBoolean1403;
     public byte buffer[];
     public int caret;
-    public int anInt1407;
-    public static boolean aBoolean1418;
 
-    public Stream(byte abyte0[])
+    public Stream(byte src[])
     {
-        buffer = abyte0;
+        buffer = src;
         caret = 0;
     }
     
@@ -37,7 +35,7 @@ public final class Stream
         buffer[caret++] = (byte)(i >> 8);
     }
 
-    public void write24BitInt(int i)
+    public void write3Bytes(int i)
     {
         buffer[caret++] = (byte)(i >> 16);
         buffer[caret++] = (byte)(i >> 8);
@@ -71,7 +69,7 @@ public final class Stream
         buffer[caret++] = 10;
     }
 
-    public void writeBytes(byte abyte0[], int i, boolean flag, int j)
+    public void writeBytes(byte src[], int i, boolean flag, int j)
     {
         if(!flag)
         {
@@ -79,7 +77,7 @@ public final class Stream
         }
         for(int k = j; k < j + i; k++)
         {
-            buffer[caret++] = abyte0[k];
+            buffer[caret++] = src[k];
         }
 
     }
@@ -89,9 +87,9 @@ public final class Stream
         return buffer[caret++] & 0xff;
     }
     
-    public int readUByte(int i)
+    public int readUByte(int offset)
     {
-        return buffer[caret++ + i] & 0xff;
+        return buffer[caret++ + offset] & 0xff;
     }
 
     public byte readByte()
@@ -105,7 +103,7 @@ public final class Stream
         return ((buffer[caret - 2] & 0xff) << 8) + (buffer[caret - 1] & 0xff);
     }
 
-    public int readU24BitInt()
+    public int readU3Bytes()
     {
         caret += 3;
         return ((buffer[caret - 3] & 0xff) << 16) + ((buffer[caret - 2] & 0xff) << 8) + (buffer[caret - 1] & 0xff);
@@ -132,7 +130,7 @@ public final class Stream
         return (l << 32) + l1;
     }
 
-	public int getSigned2Bytes() {
+	public int readSignedShort() {
 		int j = readUByte() * 256
 				+ readUByte(1);
 		if (j > 32767) {

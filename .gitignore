@@ -1,4 +1,8 @@
 # Windows image file caches
+.idea/*
+bin/*
+.gitignore
+*.iml
 Thumbs.db
 ehthumbs.db
 

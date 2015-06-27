@@ -8,15 +8,11 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
-import java.util.Vector;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -31,8 +27,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -466,7 +460,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 		if(archive != null)
 		{
 			String term = JOptionPane.showInputDialog(frameMain, "Enter the hash (integer) you want to find", "Search By Hash", JOptionPane.PLAIN_MESSAGE);
-			if(isInt(term))
+			if(Util.isInt(term))
 			{
 				int termInt = Integer.parseInt(term);
 				int indx = archive.getIndexForHash(termInt);
@@ -512,7 +506,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 						byte[] data = null;
 						try
 						{
-							data = fileToBytes(imports[i]);
+							data = Util.fileToBytes(imports[i]);
 						}
 						catch(IOException ioe)
 						{
@@ -563,7 +557,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 							byte[] data = null;
 							try
 							{
-								data = fileToBytes(imports[i]);
+								data = Util.fileToBytes(imports[i]);
 							}
 							catch(IOException ioe)
 							{
@@ -606,7 +600,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 							byte[] data = null;
 							try
 							{
-								data = fileToBytes(imports[i]);
+								data = Util.fileToBytes(imports[i]);
 							}
 							catch(IOException ioe)
 							{
@@ -676,7 +670,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 					byte[] data = null;
 					try
 					{
-						data = fileToBytes(selectedFile);
+						data = Util.fileToBytes(selectedFile);
 					}
 					catch(IOException ioe)
 					{
@@ -878,30 +872,8 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 			}
 		}
 	}
-	
-	private boolean isInt(String s)
-	{
-		try
-		{
-			Integer.parseInt(s);
-		}
-		catch(Exception e)
-		{
-			return false;
-		}
-		return true;
-	}
-	
-	private byte[] fileToBytes(File file) throws IOException
-	{
-		RandomAccessFile raf = new RandomAccessFile(file, "r");
-		byte[] data = new byte[(int) raf.length()];
-		raf.readFully(data);
-		raf.close();
-		return data;
-	}
-	
-	
+
+
 	private boolean show2OptionDialog(String title, String msg, String opt0, String opt1)
 	{
 		Object[] options = {opt0, opt1};

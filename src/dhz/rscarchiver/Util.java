@@ -19,4 +19,26 @@ public class Util
 		raf.close();
 		return buffer;
 	}
+
+	static boolean isInt(String s)
+	{
+		try
+		{
+			Integer.parseInt(s);
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	static byte[] fileToBytes(File file) throws IOException
+	{
+		RandomAccessFile raf = new RandomAccessFile(file, "r");
+		byte[] data = new byte[(int) raf.length()];
+		raf.readFully(data);
+		raf.close();
+		return data;
+	}
 }
