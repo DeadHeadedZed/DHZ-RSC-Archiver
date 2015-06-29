@@ -32,7 +32,6 @@ import javax.swing.event.ListSelectionListener;
 
 /**
  * @author DeadHeadedZed
- * v1.0.0
  * 
  * This is just basically a GUI frontend for messing with the bz2 compressed archives RSC uses
  * 
@@ -42,6 +41,8 @@ import javax.swing.event.ListSelectionListener;
  */
 public class RscArchiver implements ActionListener, ListSelectionListener, WindowListener
 {
+	public static final String version = "1.0.1";
+	
 	final JFileChooser fileChooser;
 	private JFrame frameMain;
 	private JList listArchiveFiles;
@@ -65,7 +66,7 @@ public class RscArchiver implements ActionListener, ListSelectionListener, Windo
 		fileChooser = new JFileChooser();
 		
 		frameMain = new JFrame(); //uses default borderlayout
-		frameMain.setTitle("DHZ's RSC Archiver v1.0.0");
+		frameMain.setTitle("DHZ's RSC Archiver " + version);
 		frameMain.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frameMain.addWindowListener(this);
 		frameMain.setPreferredSize(new Dimension(600, 600));	
